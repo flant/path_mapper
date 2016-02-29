@@ -15,7 +15,7 @@ module PathMapper
         if File.directory? path
           Mapper.new(path)
         else
-          File.read(path)
+          File.read(path).strip
         end
       else
         NullObject.new(m.to_s)
