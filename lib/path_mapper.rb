@@ -7,7 +7,7 @@ module PathMapper
 
     def initialize(path)
       @path = path
-      @_name = path.scan(/[^\/]+/).last
+      @_name = PathMapper.get_file_name(path)
     end
 
     def f(m)
@@ -49,6 +49,10 @@ module PathMapper
       end
     end
 
+    def _grep(reg, recursive=false)
+      []
+    end
+
     def empty
       true
     end
@@ -68,13 +72,16 @@ module PathMapper
     def each
       @files.each do |f|
         obj = if File.directory? f
-          Mapper.new(f)
+          [PathMapper.get_file_name(f), Mapper.new(f)]
         else
-          File.read(f)
+          [PathMapper.get_file_name(f), File.read(f)]
         end
         yield obj
       end
     end
   end
-end
 
+  def self.get_file_name(name)
+    name.scan(/[^\/]+/).last
+  end
+end
