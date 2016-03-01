@@ -1,25 +1,37 @@
 require 'path_mapper/version'
 
 module PathMapper
-  class Mapper
+  def self.new(path)
+    if File.exists? path
+      if File.directory? path
+        DirNode.new(path)
+      else
+        FileNode.new(path)
+      end
+    else
+      NullNode.new(path)
+    end
+  end
+
+  module BaseNode
     attr_reader :path
     attr_reader :_name
 
     def initialize(path)
       @path = path
-      @_name = PathMapper.get_file_name(path)
+      @_name = get_file_name(path)
     end
 
+    def get_file_name(name)
+      name.scan(/[^\/]+/).last
+    end
+  end
+
+  class DirNode
+    include BaseNode
+
     def f(m)
-      if File.exists? path = File.join(@path, m.to_s)
-        if File.directory? path
-          Mapper.new(path)
-        else
-          File.read(path).strip
-        end
-      else
-        NullObject.new(m.to_s)
-      end
+      PathMapper.new(File.join(@path, m.to_s))
     end
 
     def _grep(reg, recursive=false)
@@ -31,21 +43,32 @@ module PathMapper
     def method_missing(m, *args, &block)
       self.f(m)
     end
+
+    def to_s
+      @path
+    end
   end
 
-  class NullObject < BasicObject
-    attr_reader :_name
+  class FileNode
+    include BaseNode
 
-    def initialize(name)
-      @_name = name
+    def method_missing(m, *args, &block)
+      (@content ||= self.to_s).send(m)
     end
+
+    def to_s
+      File.read(@path).strip
+    end
+  end
+
+  class NullNode < BasicObject
+    include BaseNode
 
     def method_missing(m, *args, &block)
       if nil.respond_to? m
         nil.send m, *args, &block
       else
-        @_name = m.to_s
-        self
+        NullNode.new([@path, m.to_s].join(::File::SEPARATOR))
       end
     end
 
@@ -60,6 +83,10 @@ module PathMapper
     def any?
       false
     end
+
+    def to_s
+      @path
+    end
   end
 
   class FilesIterator
@@ -71,17 +98,8 @@ module PathMapper
 
     def each
       @files.each do |f|
-        obj = if File.directory? f
-          [PathMapper.get_file_name(f), Mapper.new(f)]
-        else
-          [PathMapper.get_file_name(f), File.read(f)]
-        end
-        yield obj
+        yield PathMapper.new(f)
       end
     end
-  end
-
-  def self.get_file_name(name)
-    name.scan(/[^\/]+/).last
   end
 end
