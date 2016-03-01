@@ -14,11 +14,11 @@ module PathMapper
   end
 
   module BaseNode
-    attr_reader :path
+    attr_reader :_path
     attr_reader :_name
 
     def initialize(path)
-      @path = path
+      @_path = path
       @_name = get_file_name(path)
     end
 
@@ -31,11 +31,11 @@ module PathMapper
     include BaseNode
 
     def f(m)
-      PathMapper.new(File.join(@path, m.to_s))
+      PathMapper.new(File.join(@_path, m.to_s))
     end
 
     def _grep(reg, recursive=false)
-      path = "#{@path}#{'/**' if recursive}/*"
+      path = "#{@_path}#{'/**' if recursive}/*"
       files = Dir[path].select {|f| f =~ reg }
       FilesIterator.new(files)
     end
@@ -45,7 +45,7 @@ module PathMapper
     end
 
     def to_s
-      @path
+      @_path
     end
   end
 
@@ -57,7 +57,7 @@ module PathMapper
     end
 
     def to_s
-      File.read(@path).strip
+      File.read(@_path).strip
     end
   end
 
@@ -68,7 +68,7 @@ module PathMapper
       if nil.respond_to? m
         nil.send m, *args, &block
       else
-        NullNode.new([@path, m.to_s].join(::File::SEPARATOR))
+        NullNode.new([@_path, m.to_s].join(::File::SEPARATOR))
       end
     end
 
@@ -85,7 +85,7 @@ module PathMapper
     end
 
     def to_s
-      @path
+      @_path
     end
   end
 
