@@ -25,6 +25,8 @@ module PathMapper
     def get_file_name(name)
       name.scan(/[^\/]+/).last
     end
+
+    alias_method :to_str, :to_s
   end
 
   class DirNode
