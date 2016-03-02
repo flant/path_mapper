@@ -1,4 +1,4 @@
-# require 'path_mapper/version'
+require 'path_mapper/version'
 
 module PathMapper
   def self.new(path)
@@ -49,7 +49,7 @@ module PathMapper
       FilesIterator.new(files)
     end
 
-    def method_missing(m, **kwargs)
+    def method_missing(m, *args, **kwargs, &block)
       obj = self.f(m)
       (obj.empty? and kwargs.key? :default) ? kwargs[:default] : obj
     end
@@ -58,7 +58,7 @@ module PathMapper
   class FileNode
     include BaseNode
 
-    def method_missing(m)
+    def method_missing(m, *args, **kwargs, &block)
       (@content ||= self.to_s).send(m)
     end
 
@@ -69,9 +69,9 @@ module PathMapper
 
   class NullNode < BasicObject
     include BaseNode
-    def method_missing(m, **kwargs)
+    def method_missing(m, *args, **kwargs, &block)
       if nil.respond_to? m
-        nil.send m
+        nil.send m, *args, &block
       else
         kwargs.key?(:default) ? kwargs[:default] : NullNode.new([@_path, m.to_s].join(::File::SEPARATOR))
       end
