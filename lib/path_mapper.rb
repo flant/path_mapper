@@ -4,7 +4,7 @@ module PathMapper
   def self.new(path)
     if File.exists? path
       if File.directory? path
-        return DirNode.new(path) if Dir["#{path}/*"].any?
+        return DirNode.new(path)
       elsif !File.read(path).strip.empty?
         return FileNode.new(path)
       end
@@ -19,6 +19,20 @@ module PathMapper
     def initialize(path)
       @_path = path
       @_name = get_file_name(path)
+    end
+
+    def _grep(reg, recursive=false)
+      path = "#{@_path}#{'/**' if recursive}/*"
+      files = Dir[path].select {|f| f =~ reg }
+      FilesIterator.new(files)
+    end
+
+    def _grep_dirs(recursive=false)
+      self._grep(/.*/).select {|n| n.is_a? DirNode }
+    end
+
+    def _grep_files(recursive=false)
+      self._grep(/.*/).select {|n| n.is_a? FileNode }
     end
 
     def get_file_name(name)
@@ -47,12 +61,6 @@ module PathMapper
       obj = PathMapper.new(File.join(@_path, m.to_s))
       (obj.empty? and kwargs.key? :default) ? kwargs[:default] : obj
     end
-
-    def _grep(reg, recursive=false)
-      path = "#{@_path}#{'/**' if recursive}/*"
-      files = Dir[path].select {|f| f =~ reg }
-      FilesIterator.new(files)
-    end
   end
 
   class FileNode
@@ -60,6 +68,10 @@ module PathMapper
 
     def method_missing(m, *args, &block)
       (@content ||= self.to_s).send(m, *args, &block)
+    end
+
+    def _grep(reg, recursive=false)
+      []
     end
 
     def to_s
