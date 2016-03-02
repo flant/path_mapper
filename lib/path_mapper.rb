@@ -58,8 +58,8 @@ module PathMapper
   class FileNode
     include BaseNode
 
-    def method_missing(m, *args, **kwargs, &block)
-      (@content ||= self.to_s).send(m)
+    def method_missing(m, *args, &block)
+      (@content ||= self.to_s).send(m, *args, &block)
     end
 
     def to_s
