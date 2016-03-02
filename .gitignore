@@ -13,3 +13,4 @@
 *.a
 .idea
 mkmf.log
+/path_mapper*.gem
