@@ -39,19 +39,19 @@ module PathMapper
   class DirNode
     include BaseNode
 
-    def f(m)
-      PathMapper.new(File.join(@_path, m.to_s))
+    def method_missing(m, *args, **kwargs, &block)
+      self.f(m, **kwargs)
+    end
+
+    def f(m, **kwargs)
+      obj = PathMapper.new(File.join(@_path, m.to_s))
+      (obj.empty? and kwargs.key? :default) ? kwargs[:default] : obj
     end
 
     def _grep(reg, recursive=false)
       path = "#{@_path}#{'/**' if recursive}/*"
       files = Dir[path].select {|f| f =~ reg }
       FilesIterator.new(files)
-    end
-
-    def method_missing(m, *args, **kwargs, &block)
-      obj = self.f(m)
-      (obj.empty? and kwargs.key? :default) ? kwargs[:default] : obj
     end
   end
 
@@ -69,12 +69,17 @@ module PathMapper
 
   class NullNode < BasicObject
     include BaseNode
+
     def method_missing(m, *args, **kwargs, &block)
       if nil.respond_to? m
         nil.send m, *args, &block
       else
-        kwargs.key?(:default) ? kwargs[:default] : NullNode.new([@_path, m.to_s].join(::File::SEPARATOR))
+        self.f(m, **kwargs)
       end
+    end
+
+    def f(m, **kwargs)
+      kwargs.key?(:default) ? kwargs[:default] : NullNode.new([@_path, m.to_s].join(::File::SEPARATOR))
     end
 
     def _grep(reg, recursive=false)
