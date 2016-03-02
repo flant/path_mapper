@@ -4,7 +4,7 @@ module PathMapper
   def self.new(path)
     if File.exists? path
       if File.directory? path
-        return DirNode.new(path) if Dir["#{path}/*"].any?
+        return DirNode.new(path)
       elsif !File.read(path).strip.empty?
         return FileNode.new(path)
       end
