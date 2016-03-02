@@ -7,10 +7,10 @@ Gem::Specification.new do |spec|
   spec.version       = PathMapper::VERSION
   spec.authors       = ["Alexey Igrychev"]
   spec.email         = ["alexey.igrychev@flant.ru"]
-  spec.summary       = ''
-  spec.description   = ''
-  spec.homepage      = ""
+  spec.summary       = ""
+  spec.description   = spec.description
   spec.license       = "MIT"
+  spec.homepage      = "https://github.com/flant/path_mapper"
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
