@@ -1,16 +1,15 @@
-require 'path_mapper/version'
+# require 'path_mapper/version'
 
 module PathMapper
   def self.new(path)
     if File.exists? path
       if File.directory? path
-        DirNode.new(path)
-      else
-        FileNode.new(path)
+        return DirNode.new(path) if Dir["#{path}/*"].any?
+      elsif !File.read(path).strip.empty?
+        return FileNode.new(path)
       end
-    else
-      NullNode.new(path)
     end
+    NullNode.new(path)
   end
 
   module BaseNode
@@ -24,6 +23,14 @@ module PathMapper
 
     def get_file_name(name)
       name.scan(/[^\/]+/).last
+    end
+
+    def to_s
+      @_path
+    end
+
+    def inspect
+      self.to_s
     end
 
     alias_method :to_str, :to_s
@@ -42,19 +49,16 @@ module PathMapper
       FilesIterator.new(files)
     end
 
-    def method_missing(m, *args, &block)
-      self.f(m)
-    end
-
-    def to_s
-      @_path
+    def method_missing(m, **kwargs)
+      obj = self.f(m)
+      (obj.empty? and kwargs.key? :default) ? kwargs[:default] : obj
     end
   end
 
   class FileNode
     include BaseNode
 
-    def method_missing(m, *args, &block)
+    def method_missing(m)
       (@content ||= self.to_s).send(m)
     end
 
@@ -65,17 +69,20 @@ module PathMapper
 
   class NullNode < BasicObject
     include BaseNode
-
-    def method_missing(m, *args, &block)
+    def method_missing(m, **kwargs)
       if nil.respond_to? m
-        nil.send m, *args, &block
+        nil.send m
       else
-        NullNode.new([@_path, m.to_s].join(::File::SEPARATOR))
+        kwargs.key?(:default) ? kwargs[:default] : NullNode.new([@_path, m.to_s].join(::File::SEPARATOR))
       end
     end
 
     def _grep(reg, recursive=false)
       []
+    end
+
+    def nil?
+      true
     end
 
     def empty
@@ -84,10 +91,6 @@ module PathMapper
 
     def any?
       false
-    end
-
-    def to_s
-      @_path
     end
   end
 
