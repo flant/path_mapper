@@ -43,11 +43,13 @@ module PathMapper
       @_path
     end
 
-    def inspect
+    def to_str
       self.to_s
     end
 
-    alias_method :to_str, :to_s
+    def inspect
+      self.to_s
+    end
   end
 
   class DirNode
