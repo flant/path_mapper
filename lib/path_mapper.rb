@@ -72,6 +72,10 @@ module PathMapper
       (obj.empty? and kwargs.key? :default) ? kwargs[:default] : obj
     end
 
+    def empty?
+      !Dir["#{@_path}/*"].any?
+    end
+
     def _dir?
       true
     end
@@ -120,7 +124,7 @@ module PathMapper
       true
     end
 
-    def empty
+    def empty?
       true
     end
 
