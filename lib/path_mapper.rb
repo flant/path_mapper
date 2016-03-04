@@ -50,6 +50,14 @@ module PathMapper
     def inspect
       self.to_s
     end
+
+    def _dir?
+      false
+    end
+
+    def _file?
+      false
+    end
   end
 
   class DirNode
@@ -63,6 +71,10 @@ module PathMapper
       obj = PathMapper.new(File.join(@_path, m.to_s))
       (obj.empty? and kwargs.key? :default) ? kwargs[:default] : obj
     end
+
+    def _dir?
+      true
+    end
   end
 
   class FileNode
@@ -74,6 +86,10 @@ module PathMapper
 
     def _grep(reg, recursive=false)
       []
+    end
+
+    def _file?
+      true
     end
 
     def to_s
