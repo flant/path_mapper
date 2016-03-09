@@ -1,4 +1,5 @@
 require 'path_mapper/version'
+require 'pathname'
 
 module PathMapper
   def self.new(path)
@@ -13,34 +14,58 @@ module PathMapper
   end
 
   module BaseNode
-    attr_reader :_path
-    attr_reader :_name
+    attr_reader :path
+    attr_reader :name
 
     def initialize(path)
-      @_path = path
-      @_name = get_file_name(path)
+      @path = Pathname.new(path)
+      @name = @path.basename
     end
 
-    def _grep(reg, recursive=false)
-      path = "#{@_path}#{'/**' if recursive}/*"
+    def grep(reg, recursive=false)
+      path = "#{@path}#{'/**' if recursive}/*"
       files = Dir[path].select {|f| f =~ reg }
       FilesIterator.new(files)
     end
 
-    def _grep_dirs(recursive=false)
-      self._grep(/.*/).select {|n| n.is_a? DirNode }
+    def grep_dirs(recursive=false)
+      self.grep(/.*/, recursive: recursive).select {|n| n.is_a? DirNode }
     end
 
-    def _grep_files(recursive=false)
-      self._grep(/.*/).select {|n| n.is_a? FileNode }
+    def grep_files(recursive=false)
+      self.grep(/.*/, recursive: recursive).select {|n| n.is_a? FileNode }
     end
 
-    def get_file_name(name)
-      name.scan(/[^\/]+/).last
+    def delete!(full: false)
+
+    end
+
+    def dir?
+      @path.directory?
+    end
+
+    def file?
+      @path.file?
+    end
+
+    def value
+      nil
+    end
+
+    def int
+      self.value.to_i
+    end
+
+    def float
+      self.value.to_f
+    end
+
+    def json
+      JSON.load(self.value)
     end
 
     def to_s
-      @_path
+      @path.to_s
     end
 
     def to_str
@@ -51,12 +76,8 @@ module PathMapper
       self.to_s
     end
 
-    def _dir?
-      false
-    end
-
-    def _file?
-      false
+    def to_pathname
+      @path
     end
   end
 
@@ -64,20 +85,33 @@ module PathMapper
     include BaseNode
 
     def method_missing(m, *args, **kwargs, &block)
+      FileNode.new(@path.join(m.to_s[/[^?]*/])).bool if m.to_s.end_with? '?'
       self.f(m, **kwargs)
     end
 
     def f(m, **kwargs)
-      obj = PathMapper.new(File.join(@_path, m.to_s))
+      obj = PathMapper.new(@path.join(m.to_s))
       (obj.empty? and kwargs.key? :default) ? kwargs[:default] : obj
     end
 
-    def empty?
-      !Dir["#{@_path}/*"].any?
+    def create!
+      self
     end
 
-    def _dir?
-      true
+    def delete!(full: false)
+      @path.rmtree
+
+      path_ = @path.parent
+      while path_.children.empty?
+        path_.rmdir
+        path_ = @path.parent
+      end if full
+
+      NullNode.new(@path)
+    end
+
+    def empty?
+      @path.children.empty?
     end
   end
 
@@ -85,19 +119,30 @@ module PathMapper
     include BaseNode
 
     def method_missing(m, *args, &block)
-      (@content ||= self.to_s).send(m, *args, &block)
+      (@content ||= self.value).send(m, *args, &block)
     end
 
-    def _grep(reg, recursive=false)
+    def grep(reg, recursive=false)
       []
     end
 
-    def _file?
-      true
+    def put!(content)
+      File.open(@path, 'w') {|f| f.write(content) } unless self.value.empty?
+      self
     end
 
-    def to_s
-      File.read(@_path).strip
+    def delete!(full: false)
+      @path.delete
+      DirNode.new(@path.dirname).delete!(full: full)
+      NullNode.new(@path)
+    end
+
+    def value
+      File.read(@path).strip
+    end
+
+    def bool
+      value == 'yes'
     end
   end
 
@@ -113,11 +158,24 @@ module PathMapper
     end
 
     def f(m, **kwargs)
-      kwargs.key?(:default) ? kwargs[:default] : NullNode.new([@_path, m.to_s].join(::File::SEPARATOR))
+      kwargs.key?(:default) ? kwargs[:default] : NullNode.new(@path.join(m.to_s))
     end
 
-    def _grep(reg, recursive=false)
+    def grep(reg, recursive=false)
       []
+    end
+
+    def create!
+      @path.mkpath
+      DirNode.new(@path)
+    end
+
+    def put!(content)
+      @path.dirname.mkpath
+      FileNode.new(@path).tap do |fn|
+        fn.put!(content)
+        fn
+      end
     end
 
     def nil?
@@ -146,4 +204,12 @@ module PathMapper
       end
     end
   end
+
+  module Mixin
+    def to_pathmapper
+      PathMapper.new(self)
+    end
+  end
 end
+
+::Pathname.send(:include, PathMapper::Mixin)
