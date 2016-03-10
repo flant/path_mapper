@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.version       = PathMapper::VERSION
   spec.authors       = ["Alexey Igrychev"]
   spec.email         = ["alexey.igrychev@flant.ru"]
-  spec.summary       = "Map filesystem to ruby objects read-only"
+  spec.summary       = "Map filesystem to ruby objects"
   spec.description   = "#{spec.summary}."
   spec.license       = "MIT"
   spec.homepage      = "https://github.com/flant/path_mapper"
