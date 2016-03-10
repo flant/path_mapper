@@ -40,6 +40,13 @@ module PathMapper
 
     end
 
+    def put!(content)
+      return self if content.empty?
+      @path.dirname.mkpath
+      File.open(@path, 'w') {|f| f.write(content) }
+      FileNode.new(@path)
+    end
+
     def dir?
       @path.directory?
     end
@@ -126,11 +133,6 @@ module PathMapper
       []
     end
 
-    def put!(content)
-      File.open(@path, 'w') {|f| f.write(content) } unless self.value.empty?
-      self
-    end
-
     def delete!(full: false)
       @path.delete
       DirNode.new(@path.dirname).delete!(full: full)
@@ -146,7 +148,7 @@ module PathMapper
     end
   end
 
-  class NullNode < BasicObject
+  class NullNode
     include BaseNode
 
     def method_missing(m, *args, **kwargs, &block)
@@ -166,14 +168,6 @@ module PathMapper
     def create!
       @path.mkpath
       DirNode.new(@path)
-    end
-
-    def put!(content)
-      @path.dirname.mkpath
-      FileNode.new(@path).tap do |fn|
-        fn.put!(content)
-        fn
-      end
     end
 
     def nil?
