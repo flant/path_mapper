@@ -19,7 +19,7 @@ module PathMapper
 
     def initialize(path)
       @path = Pathname.new(path)
-      @name = @path.basename
+      @name = @path.basename.to_s
     end
 
     def grep(reg, recursive=false)
@@ -104,7 +104,7 @@ module PathMapper
       path_ = @path.parent
       while path_.children.empty?
         path_.rmdir
-        path_ = @path.parent
+        path_ = path_.parent
       end if full
 
       NullNode.new(@path)
@@ -150,11 +150,9 @@ module PathMapper
     include BaseNode
 
     def method_missing(m, *args, **kwargs, &block)
-      if nil.respond_to? m
-        nil.send m, *args, &block
-      else
-        self.f(m, **kwargs)
-      end
+      nil.send m, *args, &block
+    rescue ::NoMethodError
+      self.f(m, **kwargs)
     end
 
     def f(m, **kwargs)
