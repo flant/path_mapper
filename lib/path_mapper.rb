@@ -29,11 +29,11 @@ module PathMapper
     end
 
     def grep_dirs(recursive=false)
-      self.grep(/.*/, recursive: recursive).select {|n| n.is_a? DirNode }
+      self.grep(/.*/, recursive).select {|n| n.is_a? DirNode }
     end
 
     def grep_files(recursive=false)
-      self.grep(/.*/, recursive: recursive).select {|n| n.is_a? FileNode }
+      self.grep(/.*/, recursive).select {|n| n.is_a? FileNode }
     end
 
     def delete!(full: false)
