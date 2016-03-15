@@ -13,9 +13,9 @@ module PathMapper
         PathMapper.new(@path.parent)
       end
 
-      def grep(reg, recursive=false)
-        path = "#{@path}#{'/**' if recursive}/*"
-        files = ::Dir[path].select {|f| f =~ reg }
+      def grep(reg, recursive=false, path=@path)
+        path_ = "#{path}#{'/**' if recursive}/*"
+        files = ::Dir[path_].select {|f| f =~ reg }
         FilesIterator.new(files)
       end
 

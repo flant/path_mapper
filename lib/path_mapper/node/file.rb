@@ -8,7 +8,7 @@ module PathMapper
         (@content ||= self.value).send(m, *args, &block)
       end
 
-      def grep(reg, recursive=false)
+      def grep(reg, recursive=false, path=@path)
         []
       end
 

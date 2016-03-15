@@ -13,7 +13,7 @@ module PathMapper
         kwargs.key?(:default) ? kwargs[:default] : NullNode.new(@path.join(m.to_s))
       end
 
-      def grep(reg, recursive=false)
+      def grep(reg, recursive=false, path=@path)
         []
       end
 

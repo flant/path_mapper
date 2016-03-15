@@ -26,6 +26,14 @@ module PathMapper
           end if base_resp.empty?
           (base_resp.empty? and kwargs.key? :default) ? kwargs[:default] : base_resp
         end
+
+        def grep(reg, recursive=false, path=@path)
+          files_iterator = super
+          self.inheritance.each do |inheritor|
+            files_iterator.files += super(req, recursive, inheritor.path)
+          end
+          files_iterator
+        end
       end
     end
   end
