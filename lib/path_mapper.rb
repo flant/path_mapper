@@ -22,6 +22,10 @@ module PathMapper
       @name = @path.basename.to_s
     end
 
+    def parent
+      PathMapper.new(@path.parent)
+    end
+
     def grep(reg, recursive=false)
       path = "#{@path}#{'/**' if recursive}/*"
       files = Dir[path].select {|f| f =~ reg }
@@ -92,8 +96,12 @@ module PathMapper
     include BaseNode
 
     def method_missing(m, *args, **kwargs, &block)
-      FileNode.new(@path.join(m.to_s[/[^?]*/])).bool if m.to_s.end_with? '?'
-      self.f(m, **kwargs)
+      if m.to_s.end_with? '?'
+        obj = PathMapper.new(@path.join(m.to_s[/[^?]*/]))
+        obj.file? ? obj.bool : false
+      else
+        self.f(m, **kwargs)
+      end
     end
 
     def f(m, **kwargs)
