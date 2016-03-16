@@ -29,12 +29,14 @@ module PathMapper
   end
 
   class DirNode
+    include Node::Dir::Inheritance
     include Node::Dir
     include Reloader
   end
 
   class FileNode
     include Node::File
+    include Node::File::Erb
     include Reloader
   end
 

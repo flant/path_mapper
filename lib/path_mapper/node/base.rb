@@ -13,18 +13,19 @@ module PathMapper
         PathMapper.new(@path.parent)
       end
 
-      def grep(reg, recursive=false, path=@path)
+      def grep(reg, recursive: false, path: @path, **kwargs)
         path_ = "#{path}#{'/**' if recursive}/*"
         files = ::Dir[path_].select {|f| f =~ reg }
+        files.map! {|f| Pathname.new(f) }
         FilesIterator.new(files)
       end
 
-      def grep_dirs(recursive=false)
-        self.grep(/.*/, recursive).select {|n| n.is_a? Dir }
+      def grep_dirs(recursive: false, **kwargs)
+        self.grep(/.*/, recursive: recursive, **kwargs).select {|n| n.is_a? Dir }
       end
 
-      def grep_files(recursive=false)
-        self.grep(/.*/, recursive).select {|n| n.is_a? File }
+      def grep_files(recursive: false, **kwargs)
+        self.grep(/.*/, recursive: recursive, **kwargs).select {|n| n.is_a? File }
       end
 
       def delete!(full: false)
@@ -34,6 +35,17 @@ module PathMapper
         return self if content.empty?
         @path.dirname.mkpath
         ::File.open(@path, 'w') {|f| f.write(content) }
+        FileNode.new(@path)
+      end
+
+      def safe_put!(content)
+        self.put(content) unless self.file?
+      end
+
+      def append!(content)
+        return self if content.to_s.empty?
+        @path.dirname.mkpath
+        ::File.open(@path, 'a+') {|f| f.puts(content) }
         FileNode.new(@path)
       end
 

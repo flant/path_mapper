@@ -2,22 +2,24 @@ module PathMapper
   module Node
     module Dir
       include Base
-      include Dir::Inheritance
 
       def method_missing(m, *args, **kwargs, &block)
         self.f(m, kwargs)
       end
 
       def f(m, **kwargs)
-        if m.to_s.end_with? '?'
-          obj = PathMapper.new(@path.join(m.to_s[/[^?]*/]))
-          obj.file? ? obj.bool : false
-        elsif m.to_s.end_with? '_erb'
-          obj = PathMapper.new(@path.join("#{m.to_s[/.*(?=_erb)/]}.erb"))
-          obj.file? ? obj.erb(**kwargs) : super
-        else
-          super
+        def with_file_node(fname, **kwargs)
+          if (obj = PathMapper.new(@path.join(fname))).file?
+            yield obj
+          end
         end
+
+        res = case m.to_s
+          when /(.*)(?=\?)/ then with_file_node($1) {|node| node.bool } || false
+          when /(.*)(?=_val)/ then with_file_node($1) {|node| node.value }
+          when /(.*)(?=_lines)/ then with_file_node($1) {|node| node.lines }
+        end
+        res.nil? ? super : res
       end
 
       def create!

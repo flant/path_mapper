@@ -2,13 +2,12 @@ module PathMapper
   module Node
     module File
       include Base
-      include File::Erb
 
       def method_missing(m, *args, &block)
         (@content ||= self.value).send(m, *args, &block)
       end
 
-      def grep(reg, recursive=false, path=@path)
+      def grep(reg, recursive: false, path: @path, **kwargs)
         []
       end
 
@@ -16,6 +15,14 @@ module PathMapper
         @path.delete
         DirNode.new(@path.dirname).delete!(full: full)
         NullNode.new(@path)
+      end
+
+      def to_s
+        self.value
+      end
+
+      def lines
+        self.value.lines.map {|l| l.strip }
       end
 
       def value
