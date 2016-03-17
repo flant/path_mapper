@@ -3,9 +3,10 @@ module PathMapper
     module Base
       class FilesIterator
         include Enumerable
+        attr_accessor :files
 
         def initialize(files=[], mapper)
-          @files = files
+          self.files = files
           @parent_mapper = mapper
         end
 

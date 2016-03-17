@@ -2,6 +2,7 @@ module PathMapper
   module Node
     module Dir
       include Base
+      include Node::Dir::Inheritance
 
       def method_missing(m, *args, **kwargs, &block)
         self.f(m, kwargs)

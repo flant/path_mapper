@@ -30,7 +30,6 @@ module PathMapper
   end
 
   class DirNode
-    include Node::Dir::Inheritance
     include Node::Dir
     include Node::Dir::Erb
     include Reloader

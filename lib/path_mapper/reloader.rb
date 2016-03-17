@@ -1,6 +1,6 @@
 module PathMapper
   module Reloader
-    EXCLUDED_METHODS = [:path, :name, :parent, :put!, :append!, :to_pathname, :inheritance, :erb_options, :erb_options=]
+    EXCLUDED_METHODS = [:inheritance, :erb_options, :erb_options=] # TODO
 
     def self.included(base)
       base.class_eval do

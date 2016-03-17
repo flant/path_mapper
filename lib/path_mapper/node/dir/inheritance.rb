@@ -14,12 +14,19 @@ module PathMapper
 
         def f(m, overlay: true, **kwargs)
           def with_inheritance(obj, **kwargs)
-            obj.inheritance = self.inheritance.select {|inheritor| !inheritor.f(obj.name, kwargs).empty? } if obj.is_a? Node and obj.dir?
+            if obj.respond_to? :dir? and obj.dir?
+              obj.inheritance = self.inheritance.map do |inheritor|
+                next if inheritor.path == obj.path.dirname
+                unless (resp = inheritor.f(obj.name, kwargs)).empty?
+                  resp
+                end
+              end.compact
+            end
             obj
           end
 
           base_resp = nil
-          ["#{m.to_s}.erb", m.to_s].each {|fname| base_resp = with_inheritance(self.create_node(@path.join(fname))) if base_resp.nil? }
+          ["#{m.to_s}.erb", m.to_s].each {|fname| base_resp = with_inheritance(self.create_node(@path.join(fname)), kwargs) if base_resp.nil? }
           resp = [base_resp]
           self.inheritance.each do |inherit|
             unless (resp_ = with_inheritance(inherit.f(m, kwargs), kwargs)).nil?
@@ -43,8 +50,7 @@ module PathMapper
           self.inheritance.each do |inheritor|
             inheritor_files_iterator = super(reg, path: inheritor.path)
             files_iterator.files += if overlay
-              files = files_iterator.files
-              inheritor_files_iterator.files.select {|f| !files.any? {|f_| f_.basename == f.basename } }
+              inheritor_files_iterator.files.select {|f| !files.any? {|f_| f_.basename[/.*[^\.erb]/] == f.basename[/.*[^\.erb]/] } }
             else
               inheritor_files_iterator.files
             end
