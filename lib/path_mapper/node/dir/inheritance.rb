@@ -19,7 +19,7 @@ module PathMapper
           end
 
           base_resp = nil
-          ["#{m.to_s}.erb", m.to_s].each {|fname| base_resp = with_inheritance(PathMapper.new(@path.join(fname))) if base_resp.nil? }
+          ["#{m.to_s}.erb", m.to_s].each {|fname| base_resp = with_inheritance(self.create_node(@path.join(fname))) if base_resp.nil? }
           resp = [base_resp]
           self.inheritance.each do |inherit|
             unless (resp_ = with_inheritance(inherit.f(m, kwargs), kwargs)).nil?

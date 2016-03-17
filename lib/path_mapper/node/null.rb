@@ -33,6 +33,10 @@ module PathMapper
       def any?
         false
       end
+
+      def to_s
+        ''
+      end
     end
   end
 end

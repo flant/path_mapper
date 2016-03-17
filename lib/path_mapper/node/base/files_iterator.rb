@@ -4,15 +4,14 @@ module PathMapper
       class FilesIterator
         include Enumerable
 
-        attr_accessor :files
-
-        def initialize(files=[])
-          self.files = files
+        def initialize(files=[], mapper)
+          @files = files
+          @parent_mapper = mapper
         end
 
         def each
-          self.files.each do |f|
-            yield PathMapper.new(f)
+          @files.each do |f|
+            yield @parent_mapper.f(f)
           end
         end
       end

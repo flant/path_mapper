@@ -4,20 +4,20 @@ module PathMapper
       attr_reader :path
       attr_reader :name
 
-      def initialize(path)
+      def initialize(path, **kwargs)
         @path = Pathname.new(path)
         @name = @path.basename.to_s
       end
 
       def parent
-        PathMapper.new(@path.parent)
+        self.create_node(@path.parent)
       end
 
       def grep(reg, recursive: false, path: @path, **kwargs)
         path_ = "#{path}#{'/**' if recursive}/*"
         files = ::Dir[path_].select {|f| f =~ reg }
         files.map! {|f| Pathname.new(f) }
-        FilesIterator.new(files)
+        FilesIterator.new(files, self)
       end
 
       def grep_dirs(recursive: false, **kwargs)
@@ -87,6 +87,16 @@ module PathMapper
 
       def to_pathname
         @path
+      end
+
+      protected
+
+      def create_node(path)
+        PathMapper.new(path, self.general_options)
+      end
+
+      def general_options
+        {}
       end
     end
   end

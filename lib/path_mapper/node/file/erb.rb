@@ -2,14 +2,16 @@ module PathMapper
   module Node
     module File
       module Erb
-        def self.included(base)
-          base.send(:extend, ClassMethods)
+        include Dir::Erb
+
+        def erb_options=(options)
+          @erb_options = options
         end
 
         def erb(script)
-          ERB.new(script).result(OpenStruct.new(self.class.erb_options).instance_eval { binding })
+          ERB.new(script).result(OpenStruct.new(self.erb_options).instance_eval { binding })
         rescue Exception => e
-          raise NetStatus::Exception, e.net_status.merge!( code: :erb_error, data: { error: "#{e.backtrace.first.sub! '(erb)', self.path.to_s}: #{e.message}" })
+          raise NetStatus::Exception, { code: :erb_error, data: { error: "#{e.backtrace.first.sub! '(erb)', self.path.to_s}: #{e.message}" } }
         end
 
         def value
@@ -17,16 +19,6 @@ module PathMapper
             self.erb(super)
           else
             super
-          end
-        end
-
-        module ClassMethods
-          def erb_options
-            @@erb_options ||= {}
-          end
-
-          def erb_options=(val)
-            @@erb_options = val
           end
         end
       end

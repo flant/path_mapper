@@ -9,7 +9,7 @@ module PathMapper
 
       def f(m, **kwargs)
         def with_file_node(fname, **kwargs)
-          if (obj = PathMapper.new(@path.join(fname))).file?
+          if (obj = self.create_node(@path.join(fname))).file?
             yield obj
           end
         end

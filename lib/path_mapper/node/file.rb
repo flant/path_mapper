@@ -22,7 +22,7 @@ module PathMapper
       end
 
       def lines
-        self.value.lines.map {|l| l.strip }
+        self.to_s.lines.map {|l| l.strip }
       end
 
       def value
