@@ -22,6 +22,10 @@ module PathMapper
         DirNode.new(@path)
       end
 
+      def lines
+        []
+      end
+
       def nil?
         true
       end
