@@ -6,7 +6,7 @@ module PathMapper
 
         def initialize(path, erb_options={})
           super(path)
-          self.erb_options = erb_options
+          @erb_options = erb_options
         end
 
         def erb_options=(options)
@@ -17,7 +17,7 @@ module PathMapper
         protected
 
         def general_options
-          super[:erb_options] = self.erb_options
+          super[:erb_options] = @erb_options
         end
       end
     end
