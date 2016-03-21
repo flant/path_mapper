@@ -34,7 +34,7 @@ module PathMapper
       def put!(content)
         return self if content.empty?
         @path.dirname.mkpath
-        ::File.open(@path, 'w') {|f| f.write(content) }
+        ::File.open(@path, 'w') {|f| f.puts(content) }
         FileNode.new(@path)
       end
 
