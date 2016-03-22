@@ -28,9 +28,6 @@ module PathMapper
         self.grep(/.*/, recursive: recursive, **kwargs).select {|n| n.is_a? File }
       end
 
-      def delete!(full: false)
-      end
-
       def put!(content)
         return self if content.empty?
         @path.dirname.mkpath

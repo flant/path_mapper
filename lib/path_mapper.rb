@@ -43,5 +43,6 @@ module PathMapper
 
   class NullNode
     include Node::Null
+    include Reloader
   end
 end

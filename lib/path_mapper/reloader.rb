@@ -10,13 +10,12 @@ module PathMapper
 
           define_method with do |*args, &block|
             obj = self.create_node(@path)
-            if obj.nil?
-              method = (name == :method_missing) ? args.pop : name
-              obj.send(method, *args, &block)
-            else
+            if obj.is_a? self.class or !self.nil?
               self.send(without, *args, &block)
+            else
+              obj.send(without, *args, &block)
             end
-          end unless method_defined?(with)
+          end
 
           alias_method without, name
           alias_method name, with
