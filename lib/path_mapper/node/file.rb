@@ -13,7 +13,9 @@ module PathMapper
 
       def delete!(full: false)
         @path.delete
-        DirNode.new(@path.dirname).delete!(full: full)
+        if (dir_node = DirNode.new(@path.dirname)).empty?
+          dir_node.delete!(full: full)
+        end
         NullNode.new(@path)
       end
 

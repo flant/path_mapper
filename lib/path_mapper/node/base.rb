@@ -36,7 +36,7 @@ module PathMapper
       end
 
       def safe_put!(content)
-        self.put(content) unless self.file?
+        self.put!(content) unless self.file?
       end
 
       def append!(content)
