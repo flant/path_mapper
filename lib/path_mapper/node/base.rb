@@ -39,6 +39,12 @@ module PathMapper
         self.put!(content) unless self.file?
       end
 
+      def safe_append!(content)
+        unless self.dir?
+          self.append!(content) unless self.to_s.lines.include? content
+        end
+      end
+
       def append!(content)
         return self if content.to_s.empty?
         @path.dirname.mkpath
