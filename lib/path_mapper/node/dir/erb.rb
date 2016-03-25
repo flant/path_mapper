@@ -16,7 +16,7 @@ module PathMapper
 
         protected
 
-        def general_options
+        def _general_options
           super[:erb_options] = @erb_options
         end
       end

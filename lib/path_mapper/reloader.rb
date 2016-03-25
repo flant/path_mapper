@@ -9,7 +9,7 @@ module PathMapper
           @__last_methods_added = [name, with, without]
 
           define_method with do |*args, &block|
-            obj = self.create_node(@path)
+            obj = self._create_node(@path)
             if obj.is_a? self.class or !self.nil?
               self.send(without, *args, &block)
             else

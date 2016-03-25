@@ -2,6 +2,8 @@ module PathMapper
   module Node
     module Null
       include Base
+      include File
+      include Representation
 
       def method_missing(m, *args, **kwargs, &block)
         nil.send m, *args, &block
@@ -11,39 +13,6 @@ module PathMapper
 
       def f(m, **kwargs)
         kwargs.key?(:default) ? kwargs[:default] : NullNode.new(@path.join(m.to_s))
-      end
-
-      def grep(reg, recursive: false, path: @path, **kwargs)
-        []
-      end
-
-      def create!
-        @path.mkpath
-        DirNode.new(@path)
-      end
-
-      def delete!(full: false)
-        self
-      end
-
-      def lines
-        []
-      end
-
-      def nil?
-        true
-      end
-
-      def empty?
-        true
-      end
-
-      def any?
-        false
-      end
-
-      def to_s
-        ''
       end
     end
   end
