@@ -14,6 +14,10 @@ module PathMapper
           nil
         end
 
+        def override!(content)
+          nil
+        end
+
         def delete!(full: false)
           @path.rmtree
 

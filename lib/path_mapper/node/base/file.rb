@@ -35,7 +35,16 @@ module PathMapper
           self
         end
 
-        def override!(path)
+        def override!(content)
+          if content.empty?
+            self.delete!
+          else
+            PathMapper.new(@path.dirname.join(".#{@name}.tmp")).tap do |dummy_mapper|
+              dummy_mapper.put!(content)
+              dummy_mapper.rename!(@path) if self.nil? or (Digest::MD5.new.digest(dummy_mapper.value) != Digest::MD5.new.digest(self.value))
+              dummy_mapper.delete!
+            end
+          end
         end
 
         def check(line)

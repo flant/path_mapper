@@ -11,12 +11,6 @@ module PathMapper
           end
         end
 
-        def override!(path)
-          PathMapper.new(path).tap do |mapper|
-            self.rename!(path) if !mapper.file? or Digest::MD5.new.digest(mapper.value) != Digest::MD5.new.digest(self.value)
-          end
-        end
-
         def delete!(full: false)
           @path.delete
           if full and (dir_node = DirNode.new(@path.dirname)).empty?
