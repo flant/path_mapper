@@ -40,8 +40,11 @@ module PathMapper
             self.delete!
           else
             PathMapper.new(@path.dirname.join(".#{@name}.tmp")).put!(content).tap do |dummy_mapper|
-              dummy_mapper.rename!(@path) if self.nil? or (Digest::MD5.new.digest(dummy_mapper.value) != Digest::MD5.new.digest(self.value))
-              dummy_mapper.delete!
+              if self.nil? or (Digest::MD5.new.digest(dummy_mapper.value) != Digest::MD5.new.digest(self.value))
+                dummy_mapper.rename!(@path)
+              else
+                dummy_mapper.delete!
+              end
             end
           end
         end
