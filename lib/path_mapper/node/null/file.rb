@@ -4,7 +4,7 @@ module PathMapper
       module File
         def create!
           @path.mkpath
-          DirNode.new(@path)
+          PathMapper.new(@path)
         end
 
         def delete!(full: false)
@@ -17,6 +17,10 @@ module PathMapper
 
         def rename!(new_path)
           PathMapper.new(new_path)
+        end
+
+        def md5
+          nil
         end
       end
     end

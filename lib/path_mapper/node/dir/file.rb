@@ -18,6 +18,10 @@ module PathMapper
           nil
         end
 
+        def md5
+          nil
+        end
+
         def delete!(full: false)
           @path.rmtree
 

@@ -40,7 +40,7 @@ module PathMapper
             self.delete!
           else
             PathMapper.new(@path.dirname.join(".#{@name}.tmp")).put!(content).tap do |dummy_mapper|
-              if self.nil? or (Digest::MD5.new.digest(dummy_mapper.value) != Digest::MD5.new.digest(self.value))
+              if self.nil? or !self.compare_with(dummy_mapper)
                 dummy_mapper.rename!(@path)
               else
                 dummy_mapper.delete!
@@ -49,8 +49,16 @@ module PathMapper
           end
         end
 
+        def compare_with(mapper)
+          self.md5 == mapper.md5
+        end
+
         def check(line)
           false
+        end
+
+        def md5
+          Digest::MD5.new.digest(self.value)
         end
 
         protected
