@@ -21,8 +21,8 @@ module PathMapper
         def _delete!(full: false)
           @path.rmtree
           parent = self.parent
-          parent.delete!(full: full) if !parent.empty? and full
-          { d: { result: NullNode.new(@path) }, code: :deleted }
+          parent.delete!(full: full) if parent.empty? and full
+          { d: { result: PathMapper.new(@path) }, code: :deleted }
         end
 
         def md5
