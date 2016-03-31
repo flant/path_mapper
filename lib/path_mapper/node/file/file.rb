@@ -13,7 +13,7 @@ module PathMapper
             self._delete!
           else
             context = self.value
-            { d: { result: self._file_puts(lines.join('')), diff: self.diff(context) }, code: :modified }
+            { d: { result: self._file_puts(lines), diff: self.diff(context) }, code: :modified }
           end
         end
 
