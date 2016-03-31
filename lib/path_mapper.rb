@@ -6,6 +6,7 @@ require 'erb'
 require 'ostruct'
 require 'pathname'
 require 'digest/md5'
+require 'diffy'
 
 require 'path_mapper/node/base/file'
 require 'path_mapper/node/base/grep'

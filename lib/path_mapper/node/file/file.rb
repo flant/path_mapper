@@ -2,21 +2,27 @@ module PathMapper
   module Node
     module File
       module File
-        def remove_line!(line)
+        def _put!(content)
+          context = self.value
+          { d: { result: self._file_puts(content), diff: self.diff(context) }, code: :modified }
+        end
+
+        def _remove_line!(line)
           lines = self.lines.select {|l| l !~ Regexp.new(line) and l }
           if lines.empty?
-            self.delete!
+            self._delete!
           else
-            self._file_puts(lines.join(''))
+            context = self.value
+            { d: { result: self._file_puts(lines.join('')), diff: self.diff(context) }, code: :modified }
           end
         end
 
-        def delete!(full: false)
+        def _delete!(full: false)
           @path.delete
-          if full and (dir_node = DirNode.new(@path.dirname)).empty?
+          if full and (dir_node = self.parent).empty?
             dir_node.delete!(full: full)
           end
-          PathMapper.new(path)
+          { d: { result: PathMapper.new(@path) }, code: :deleted }
         end
 
         def check(line)

@@ -19,6 +19,21 @@ module PathMapper
 
       protected
 
+      def kwargs(args)
+        case args.last
+          when Hash then args.pop
+          else {}
+        end
+      end
+
+      def _with_separator(arg)
+        if arg.is_a? Array
+          _with_separator(arg.join("\n"))
+        else
+          "#{arg}\n"
+        end
+      end
+
       def _create_node(path)
         PathMapper.new(path, self._general_options)
       end

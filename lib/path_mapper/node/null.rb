@@ -5,10 +5,11 @@ module PathMapper
       include File
       include Representation
 
-      def method_missing(m, *args, **kwargs, &block)
-        nil.send m, *args, &block
+      def method_missing(m, *args, &block)
+        resp = nil.send m, *args, &block if (resp = super).is_a? NilClass # Base::File
+        resp
       rescue ::NoMethodError
-        self.f(m, **kwargs)
+        self.f(m, self.kwargs(args))
       end
 
       def f(m, **kwargs)

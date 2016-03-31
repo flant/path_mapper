@@ -7,8 +7,9 @@ module PathMapper
       include Representation
       include Inheritance
 
-      def method_missing(m, *args, **kwargs, &block)
-        self.f(m, kwargs)
+      def method_missing(m, *args, &block)
+        resp = self.f(m, self.kwargs(args)) if (resp = super).is_a? NilClass # Base::File
+        resp
       end
 
       def f(m, **kwargs)
