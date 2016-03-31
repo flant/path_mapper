@@ -18,11 +18,12 @@ module PathMapper
         end
 
         def _delete!(full: false)
+          context = self.value
           @path.delete
           if full and (dir_node = self.parent).empty?
             dir_node.delete!(full: full)
           end
-          { d: { result: PathMapper.new(@path) }, code: :deleted }
+          { d: { result: PathMapper.new(@path), diff: Diffy::Diff.new(_with_separator(context), nil).to_s }, code: :deleted }
         end
 
         def check(line)
