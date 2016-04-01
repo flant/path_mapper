@@ -47,7 +47,7 @@ module PathMapper
             if dry_run
               ::File.rename(@path, new_path)
             else
-              self.storage[new_path] = self.storage.delete(@path)
+              self.storage[new_path] = self.storage_file_delete(@path)
             end
           end
           { d: { result: PathMapper.new(new_path) }, code: :renamed }

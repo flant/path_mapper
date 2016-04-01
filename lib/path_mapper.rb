@@ -51,7 +51,7 @@ module PathMapper
     end
 
     self.with_dry_run do |dry_run|
-      if self.storage.key? path
+      if self.storage.key? path and !self.deleted_files.include? path
         if self.storage[path].nil?
           return DirNode.new(path, **kwargs)
         elsif !self.storage[path].strip.empty?
