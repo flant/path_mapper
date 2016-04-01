@@ -2,21 +2,27 @@ module PathMapper
   module Node
     module Null
       module File
-        def create!
-          @path.mkpath
-          PathMapper.new(@path)
+        def _create!
+          self.with_dry_run do |dry_run|
+            if dry_run
+              self.storage_tree(@path)
+            else
+              @path.mkpath
+            end
+          end
+          { d: { result: PathMapper.new(@path) }, code: :created }
         end
 
-        def delete!(full: false)
-          self
+        def _delete!(full: false)
+          { d: { result: self }, code: :ok }
         end
 
-        def remove!(content)
-          self
+        def _remove!(content)
+          { d: { result: self }, code: :ok }
         end
 
-        def rename!(new_path)
-          PathMapper.new(new_path)
+        def _rename!(new_path)
+          { d: { result: PathMapper.new(new_path) }, code: :ok }
         end
 
         def md5

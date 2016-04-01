@@ -25,6 +25,10 @@ module PathMapper
           nil
         end
 
+        def raw_value
+          nil
+        end
+
         def int
           self.value.to_i
         end

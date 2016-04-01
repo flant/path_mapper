@@ -19,9 +19,17 @@ module PathMapper
         end
 
         def _delete!(full: false)
-          @path.rmtree
+          self.with_dry_run do |dry_run|
+            if dry_run
+              self.delete_storage_branch(@path)
+            else
+              @path.rmtree
+            end
+          end
+
           parent = self.parent
           parent.delete!(full: full) if parent.empty? and full
+
           { d: { result: PathMapper.new(@path) }, code: :deleted }
         end
 

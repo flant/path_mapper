@@ -8,6 +8,10 @@ require 'pathname'
 require 'digest/md5'
 require 'diffy'
 
+require 'path_mapper/helper/debug'
+require 'path_mapper/helper/storage'
+require 'path_mapper/helpers'
+
 require 'path_mapper/node/base/file'
 require 'path_mapper/node/base/grep'
 require 'path_mapper/node/base/representation'
@@ -31,14 +35,31 @@ require 'path_mapper/node/null'
 require 'path_mapper/reloader'
 
 module PathMapper
+  extend Helpers
+
   def self.new(path, **kwargs)
+    path = Pathname(path) unless path.is_a? Pathname
+
     if File.exists? path
       if File.directory? path
+        self.with_dry_run {|dry_run| self.storage_tree(path) if !self.storage.key?(path) and dry_run }
         return DirNode.new(path, **kwargs)
       elsif !File.read(path).strip.empty?
+        self.with_dry_run {|dry_run| self.storage_file_tree(path) if !self.storage.key?(path) and dry_run }
         return FileNode.new(path, **kwargs)
       end
     end
+
+    self.with_dry_run do |dry_run|
+      if self.storage.key? path
+        if self.storage[path].nil?
+          return DirNode.new(path, **kwargs)
+        elsif !self.storage[path].strip.empty?
+          return FileNode.new(path, **kwargs)
+        end
+      end if dry_run
+    end
+
     NullNode.new(path, **kwargs)
   end
 

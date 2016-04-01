@@ -7,7 +7,17 @@ module PathMapper
         end
 
         def value
-          ::File.read(@path).strip
+          self.raw_value.strip
+        end
+
+        def raw_value
+          with_dry_run do |dry_run|
+            if dry_run
+              self.storage[@path].to_s
+            else
+              ::File.read(@path)
+            end
+          end
         end
 
         def bool

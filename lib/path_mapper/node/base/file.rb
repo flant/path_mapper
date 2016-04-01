@@ -24,7 +24,10 @@ module PathMapper
 
         def _append!(content)
           context = self.value
-          { d: { result: self._file_puts(content, 'a+'), diff: self.diff(context) }, code: :modified }
+          resp = self._file_puts(content, 'a+')
+          diff = self.diff(context)
+          code = diff.empty? ? :ok : :modified
+          { d: { result: resp, diff: diff }, code: code }
         end
 
         def _safe_append!(content)
@@ -40,7 +43,13 @@ module PathMapper
         end
 
         def _rename!(new_path)
-          ::File.rename(@path, new_path)
+          self.with_dry_run do |dry_run|
+            if dry_run
+              ::File.rename(@path, new_path)
+            else
+              self.storage[new_path] = self.storage.delete(@path)
+            end
+          end
           { d: { result: PathMapper.new(new_path) }, code: :renamed }
         end
 
@@ -50,14 +59,24 @@ module PathMapper
 
         def _override!(content)
           if content.empty?
-            { d: { result: self.delete! }, code: :deleted }
+            self._delete!
           else
-            dummy_mapper = PathMapper.new(@path.dirname.join(".#{@name}.tmp"))._file_puts(content)
-            if self.nil? or !self.compare_with(dummy_mapper)
-              ::File.rename(dummy_mapper.path, @path)
-              { d: { result: PathMapper.new(@path) }, code: :overrided }
-            else
-              { d: { result: dummy_mapper.path.delete }, code: :ok }
+            self.with_dry_run do |dry_run|
+              tmp_mapper = PathMapper.new(@path.dirname.join(".#{@name}.tmp"))._file_puts(content)
+
+              if self.nil? or !self.compare_with(tmp_mapper)
+                if dry_run
+                  self.storage[@path] = tmp_mapper.raw_value
+                else
+                  ::File.rename(tmp_mapper.path, @path)
+                end
+                code = :overrided
+              else
+                tmp_mapper.path.delete unless dry_run
+                code = :ok
+              end
+
+              { d: { result: PathMapper.new(@path) }, code: code }
             end
           end
         end
@@ -75,8 +94,8 @@ module PathMapper
         end
 
         def diff(context)
-          context = _with_separator(context) unless context.nil?
-          diff = Diffy::Diff.new(context, _with_separator(self.value)).to_s
+          context = with_line_separator(context) unless context.nil?
+          diff = Diffy::Diff.new(context, self.raw_value, diff: '-U 3').to_s
           diff.empty? ? nil : diff
         end
 
@@ -85,7 +104,18 @@ module PathMapper
         def _file_puts(content, file_mode='w')
           return self if content.to_s.empty?
           self.parent.create!
-          ::File.open(@path, file_mode) {|f| f.puts(content) }
+
+          with_dry_run do |dry_run|
+            if dry_run
+              self.storage[@path] = case file_mode
+                when 'w' then with_line_separator(content)
+                when 'a+' then self.storage[@path].to_s + with_line_separator(content)
+              end
+            else
+              ::File.open(@path, file_mode) {|f| f.puts(content) }
+            end
+          end
+
           PathMapper.new(@path)
         end
       end
