@@ -6,14 +6,6 @@ module PathMapper
           { d: { result: self }, code: :ok }
         end
 
-        def _put!(content)
-          { d: { result: self }, code: :ok }
-        end
-
-        def _append!(content)
-          { d: { result: self }, code: :ok }
-        end
-
         def _override!(content)
           { d: { result: self }, code: :ok }
         end

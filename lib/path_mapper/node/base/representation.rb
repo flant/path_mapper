@@ -21,6 +21,10 @@ module PathMapper
         def any?
         end
 
+        def node?
+          true
+        end
+
         def value
           nil
         end

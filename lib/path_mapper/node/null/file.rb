@@ -13,6 +13,18 @@ module PathMapper
           { d: { result: PathMapper.new(@path) }, code: :created }
         end
 
+        def _put!(content)
+          { d: { result: self._file_puts(content), diff: self.custom_diff(nil, with_line_separator(content)) }, code: :created }
+        end
+
+        def _safe_put(content)
+          { d: { result: self.put!(content, logger: false), diff: self.custom_diff(nil, with_line_separator(content)) }, code: :created }
+        end
+
+        def _append_line!(line)
+          { d: { result: self.put!(line, logger: false), diff: self.custom_diff(nil, with_line_separator(line)) }, code: :created }
+        end
+
         def _delete!(full: false)
           { d: { result: self }, code: :ok }
         end
