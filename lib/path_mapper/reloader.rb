@@ -10,7 +10,7 @@ module PathMapper
 
           define_method with do |*args, &block|
             obj = self._create_node(@path)
-            if obj.is_a? self.class or !self.nil?
+            if obj.is_a? self.class
               self.send(without, *args, &block)
             else
               obj.send(without, *args, &block)
