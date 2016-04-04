@@ -3,7 +3,9 @@ module PathMapper
     module Base
       module File
         def method_missing(m, *args, &block)
-          self.with_logger(logger: kwargs(args).delete(:logger)) do
+          kwargs = self.kwargs(args)
+          self.with_logger(logger: kwargs.delete(:logger)) do
+            args << kwargs unless kwargs.empty?
             self.send("_#{m}", *args, &block)[:d][:result] if self.respond_to?("_#{m}")
           end
         end
