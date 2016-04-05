@@ -1,6 +1,7 @@
 module PathMapper
   module Helpers
     include Helper::Debug
+    include Helper::Logger
     include Helper::Storage
 
     def kwargs(args)

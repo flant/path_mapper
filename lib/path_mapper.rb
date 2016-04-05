@@ -9,6 +9,7 @@ require 'digest/md5'
 require 'diffy'
 
 require 'path_mapper/helper/debug'
+require 'path_mapper/helper/logger'
 require 'path_mapper/helper/storage'
 require 'path_mapper/helpers'
 

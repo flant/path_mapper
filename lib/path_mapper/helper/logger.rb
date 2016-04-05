@@ -1,6 +1,6 @@
 module PathMapper
   module Helper
-    module Debug
+    module Logger
       def logger
         Thread.current[:logger]
       end
