@@ -23,8 +23,8 @@ module PathMapper
       end
 
       def storage_file_delete(pathname)
-        self.storage.delete(pathname)
         self.deleted_files << pathname
+        self.storage.delete(pathname)
       end
 
       def delete_storage_branch(pathname)
