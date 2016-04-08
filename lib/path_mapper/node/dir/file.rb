@@ -22,7 +22,7 @@ module PathMapper
           parent = self.parent
           parent.delete!(full: full) if parent.empty? and full
 
-          { d: { result: PathMapper.new(@path) }, code: :deleted }
+          { d: { result: self._create_node(@path) }, code: :deleted }
         end
 
         def md5

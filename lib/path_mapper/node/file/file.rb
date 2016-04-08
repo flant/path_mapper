@@ -48,7 +48,7 @@ module PathMapper
           if full and (dir_node = self.parent).empty?
             dir_node.delete!(full: full)
           end
-          { d: { result: PathMapper.new(@path), diff: self.custom_diff(old_value, nil) }, code: :deleted }
+          { d: { result: self._create_node(@path), diff: self.custom_diff(old_value, nil) }, code: :deleted }
         end
 
         def check(line)

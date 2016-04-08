@@ -2,12 +2,19 @@ module PathMapper
   module Node
     module Base
       module File
+        attr_accessor :changes_overlay
+
         def method_missing(m, *args, &block)
           kwargs = self.kwargs(args)
           self.with_logger(logger: kwargs.delete(:logger)) do
+            self.changes_overlay = kwargs.delete(:change_overlay) if kwargs.key? :change_overlay
             args << kwargs unless kwargs.empty?
-            self.send("_#{m}", *args, &block)[:d][:result] if self.respond_to?("_#{m}")
+            self.changes_overlay.send("_#{m}", *args, &block)[:d][:result] if self.respond_to?("_#{m}")
           end
+        end
+
+        def changes_overlay
+          @changes_overlay || self
         end
 
         def _create!
@@ -35,10 +42,11 @@ module PathMapper
             if dry_run
               self.storage[new_path] = self.storage_file_delete(@path)
             else
+              self._create_node(new_path).delete!
               ::File.rename(@path, new_path)
             end
           end
-          { d: { result: PathMapper.new(new_path) }, code: :renamed }
+          { d: { result: self._create_node(new_path) }, code: :renamed }
         end
 
         def _delete!(full: false)
@@ -50,7 +58,7 @@ module PathMapper
             { d: { result: self.delete!(logger: false) }, code: :deleted }
           else
             self.with_dry_run do |dry_run|
-              tmp_mapper = PathMapper.new(@path.dirname.join(".#{@name}.tmp")).put!(content, logger: false)
+              tmp_mapper = self._create_node(@path.dirname.join(".#{@name}.tmp")).put!(content, logger: false)
 
               if self.nil? or !self.compare_with(tmp_mapper)
                 if dry_run
@@ -64,7 +72,7 @@ module PathMapper
                 code = :ok
               end
 
-              { d: { result: PathMapper.new(@path) }, code: code }
+              { d: { result: self._create_node(@path) }, code: code }
             end
           end
         end
@@ -113,7 +121,11 @@ module PathMapper
             end
           end
 
-          PathMapper.new(@path)
+          self._create_node(@path)
+        end
+
+        def _general_options
+          super[:changes_overlay] = @changes_overlay if @changes_overlay != self
         end
       end
     end

@@ -10,14 +10,14 @@ module PathMapper
               @path.mkpath
             end
           end
-          { d: { result: PathMapper.new(@path) }, code: :created }
+          { d: { result: self._create_node(@path) }, code: :created }
         end
 
         def _put!(content)
           { d: { result: self._file_puts(content), diff: self.custom_diff(nil, with_line_separator(content)) }, code: :created }
         end
 
-        def _safe_put(content)
+        def _safe_put!(content)
           { d: { result: self.put!(content, logger: false), diff: self.custom_diff(nil, with_line_separator(content)) }, code: :created }
         end
 
@@ -34,7 +34,7 @@ module PathMapper
         end
 
         def _rename!(new_path)
-          { d: { result: PathMapper.new(new_path) }, code: :ok }
+          { d: { result: self._create_node(new_path) }, code: :ok }
         end
 
         def md5

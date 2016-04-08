@@ -23,12 +23,14 @@ module PathMapper
                   end
                 end.compact
               end
+              obj.changes_overlay = self._create_node(self.changes_overlay.path.join(obj.name))
               obj
             end
 
+            resp = []
             base_resp = nil
             ["#{m.to_s}.erb", m.to_s].each {|fname| base_resp = with_inheritance(self._create_node(@path.join(fname)), kwargs) if base_resp.nil? }
-            resp = [base_resp]
+            resp << base_resp
             self.inheritance.each do |inherit|
               unless (resp_ = with_inheritance(inherit.f(m, kwargs), kwargs)).nil?
                 if overlay
