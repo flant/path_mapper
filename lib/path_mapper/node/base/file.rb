@@ -42,7 +42,6 @@ module PathMapper
             if dry_run
               self.storage[new_path] = self.storage_file_delete(@path)
             else
-              self._create_node(new_path).delete!
               ::File.rename(@path, new_path)
             end
           end
