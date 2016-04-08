@@ -10,6 +10,12 @@ module PathMapper
           { d: { result: self }, code: :ok }
         end
 
+        def _rename!(new_path)
+          mapper = PathMapper.new(new_path).create!
+          mapper.delete! unless mapper.empty?
+          super
+        end
+
         def _delete!(full: false)
           self.with_dry_run do |dry_run|
             if dry_run
