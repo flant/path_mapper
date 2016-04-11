@@ -11,8 +11,9 @@ module PathMapper
         end
 
         def _rename!(new_path)
-          mapper = PathMapper.new(new_path).create!
-          mapper.delete! unless mapper.empty?
+          mapper = PathMapper.new(new_path)
+          mapper.parent.create!(logger: false)
+          mapper.delete!(logger: false) unless mapper.empty?
           super
         end
 
