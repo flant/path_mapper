@@ -8,7 +8,7 @@ GIT
 PATH
   remote: .
   specs:
-    path_mapper (0.0.2)
+    path_mapper (0.0.3)
       diffy (~> 3.1)
 
 GEM
