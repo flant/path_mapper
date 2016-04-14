@@ -2,6 +2,10 @@ module PathMapper
   module Node
     module Dir
       module Representation
+        def dir?
+          true
+        end
+        
         def empty?
           self.with_dry_run do |dry_run|
             if dry_run

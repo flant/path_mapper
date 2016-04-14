@@ -3,11 +3,11 @@ module PathMapper
     module Base
       module Representation
         def dir?
-          @path.directory?
+          false
         end
 
         def file?
-          @path.file?
+          false
         end
 
         def empty?

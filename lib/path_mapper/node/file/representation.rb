@@ -2,6 +2,10 @@ module PathMapper
   module Node
     module File
       module Representation
+        def file?
+          true
+        end
+
         def empty?
           false
         end
