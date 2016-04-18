@@ -25,7 +25,7 @@ module PathMapper
           { d: { result: self }, code: :ok }
         end
 
-        def _safe_put!(content)
+        def safe_put!(content)
           { d: { result: self }, code: :ok }
         end
 
@@ -74,6 +74,10 @@ module PathMapper
               { d: { result: self._create_node(@path) }, code: code }
             end
           end
+        end
+
+        def safe_rename!(new_path)
+          self.rename!(new_path) if PathMapper.new(new_path).nil?
         end
 
         def compare_with(obj)

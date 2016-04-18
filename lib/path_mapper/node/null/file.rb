@@ -17,7 +17,7 @@ module PathMapper
           { d: { result: self._file_puts(content), diff: self.custom_diff(nil, with_line_separator(content)) }, code: :created }
         end
 
-        def _safe_put!(content)
+        def safe_put!(content)
           { d: { result: self.put!(content, logger: false), diff: self.custom_diff(nil, with_line_separator(content)) }, code: :created }
         end
 

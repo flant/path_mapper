@@ -5,7 +5,7 @@ module PathMapper
         def dir?
           true
         end
-        
+
         def empty?
           self.with_dry_run do |dry_run|
             if dry_run
@@ -15,6 +15,21 @@ module PathMapper
               @path.children.empty?
             end
           end
+        end
+
+        def to_hash
+          def grep_node(mapper, h={})
+            mapper.grep_dirs.each do |dir_mapper|
+              h[dir_mapper.name] = grep_node(dir_mapper)
+            end
+
+            mapper.grep_files.each do |file_mapper|
+              h[file_mapper.name] = file_mapper.raw_value
+            end
+            h
+          end
+
+          grep_node(self)
         end
       end
     end

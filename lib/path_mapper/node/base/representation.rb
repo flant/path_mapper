@@ -60,6 +60,10 @@ module PathMapper
           self.to_s
         end
 
+        def to_hash
+          {}
+        end
+
         def to_pathname
           @path
         end
