@@ -17,19 +17,20 @@ module PathMapper
           end
         end
 
-        def to_hash
-          def grep_node(mapper, h={})
+        def to_hash(eval_erb: false)
+          def grep_node(mapper, eval_erb=false)
+            h={}
             mapper.grep_dirs.each do |dir_mapper|
-              h[dir_mapper.name] = grep_node(dir_mapper)
+              h[dir_mapper.name] = grep_node(dir_mapper, eval_erb)
             end
 
             mapper.grep_files.each do |file_mapper|
-              h[file_mapper.name] = file_mapper.raw_value
+              h[file_mapper.name] = eval_erb ? file_mapper.value : file_mapper.raw_value.chomp
             end
             h
           end
 
-          grep_node(self)
+          grep_node(self, eval_erb)
         end
       end
     end
