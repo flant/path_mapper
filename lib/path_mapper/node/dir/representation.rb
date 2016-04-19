@@ -21,7 +21,7 @@ module PathMapper
           def grep_node(mapper, eval_erb=false, exclude_files=[], exclude_dirs=[])
             h={}
             mapper.grep_dirs(exclude: exclude_dirs).each do |dir_mapper|
-              h[dir_mapper.name] = grep_node(dir_mapper, eval_erb)
+              h[dir_mapper.name] = grep_node(dir_mapper, eval_erb, exclude_files, exclude_dirs)
             end
 
             mapper.grep_files(exclude: exclude_files).each do |file_mapper|
