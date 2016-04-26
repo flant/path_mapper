@@ -60,7 +60,7 @@ module PathMapper
           self.to_s
         end
 
-        def to_hash
+        def to_hash(**_kwargs)
           {}
         end
 
