@@ -2,8 +2,14 @@ module PathMapper
   module Reloader
     def self.included(base)
       base.class_eval do
-        methods = base.public_instance_methods - Object.public_instance_methods
+        methods = []
+        [Node::Base::File, Node::Base::Representation, Node::Base::Grep].each do |mod|
+          methods += mod.public_instance_methods
+        end
+        exclude_methods = [:changes_overlay, :changes_overlay=]
+
         methods.each do |name|
+          next if exclude_methods.include? name
           with = :"#{name}_with_reload"
           without = :"#{name}_without_reload"
           @__last_methods_added = [name, with, without]
